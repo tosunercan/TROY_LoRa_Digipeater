@@ -63,6 +63,37 @@ Cihazın yönetimi ve yapılandırılması, yerleşik bir web sunucusu üzerinde
 
 - Periyodik Mesajlar: Belirli dakikalarda otomatik olarak APRS Durum ve Yorum paketleri gönderir.
 
+- APRS-IS Yapılandırması
+Web arayüzünden:
+
+Sunucu: rotate.aprs2.net
+Port: 14580
+Kullanıcı adı: Çağrı işaretiniz
+Şifre: APRS-IS şifreniz
+Filtre: r/lat/lon/radius (örn: r/40.1479/26.4324/50)
+
+Kullanım
+Web Arayüzü
+
+Ana sayfa: İstatistikler ve son paketler
+Yapılandırma: Tüm ayarları değiştirme
+Durum Gönder: Manuel status beacon
+Yorum Gönder: Manuel comment beacon
+LoRa Restart: LoRa modülünü yeniden başlat
+Sistem Reboot: Cihazı yeniden başlat
+
+Periyodik İletimler
+
+Status Beacon: Her saatin 30. ve 59. dakikasında
+Comment Beacon: 5, 25 ve 45. dakikalarda
+
+LED Göstergeleri
+
+Yavaş yanıp sönme: AP modu aktif
+Tek yanıp sönme: Paket digipeat edildi
+İki yanıp sönme: Status/Comment gönderildi
+Üç yanıp sönme: Sistem başlatıldı
+
 Gerekli Donanım
 
 - ESP32 Geliştirme Kartı: (Örn. ESP32 DevKitC, NodeMCU-32S, Wemos D1 R32 vb.)
@@ -92,105 +123,8 @@ LED Pini: Dahili LED (veya harici bir LED) için GPIO2 kullanılmaktadır.
 
 BOOT Butonu Pini: AP modunu manuel tetiklemek için GPIO0 kullanılmaktadır (ESP32 kartlarındaki BOOT/FLASH butonu).
 
-Kurulum (VS Code & PlatformIO ile)
 
-1. 
-
-
-VS Code Kurulumu:
-
-
-	- Visual Studio Code'u bilgisayarınıza indirin ve kurun: VS Code İndir
-
-
-2. 
-PlatformIO IDE Uzantısını Kurun:
-
-
-	- VS Code'u açın.
-
-	- Sol kenar çubuğundaki Uzantılar (Extensions) simgesine tıklayın (veya Ctrl+Shift+X / Cmd+Shift+X).
-
-	- Arama çubuğuna PlatformIO IDE yazın ve çıkan uzantıyı kurun.
-
-	- Kurulum tamamlandıktan sonra PlatformIO, gerekli araç zincirlerini (toolchains) ve bağımlılıkları yükleyebilir, bu biraz zaman alabilir.
-
-
-3. 
-Yeni PlatformIO Projesi Oluşturma:
-
-
-	- VS Code'un sol alt köşesindeki PlatformIO simgesine tıklayın (Ant Başı simgesi).
-
-	- "Home" ekranından "New Project" butonuna tıklayın.
-
-	- "Name" alanına projeniz için bir isim girin (örn. TROY_LoRa_Digipeater).
-
-	- "Board" olarak kullandığınız ESP32 kartını arayın ve seçin (örn. ESP32 Dev Module).
-
-	- "Framework" olarak Arduino'yu seçin.
-
-	- "Location" kısmında projenizin kaydedileceği dizini belirleyin (PlatformIO'nun varsayılan konumunu kullanabilirsiniz).
-
-	- "Finish" butonuna tıklayın. PlatformIO projenizin yapısını oluşturacak ve gerekli dosyaları indirecektir.
-
-
-4. 
-Kodu Projeye Kopyalama:
-
-
-	- Oluşturulan PlatformIO projenizde src adında bir klasör bulacaksınız. Bu klasörün içinde varsayılan olarak main.cpp adında bir dosya olacaktır.
-
-	- Bu projenin (bu README'nin bulunduğu kod) içeriğini (yalnızca .ino veya .cpp dosyasını) src klasörünün içindeki main.cpp dosyasının yerine yapıştırın veya main.cpp dosyasını silip kendi kod dosyanızı (örneğin main.cpp olarak kaydederek) src klasörüne kopyalayın.
-
-
-5. 
-platformio.ini Dosyasını Güncelleme:
-
-
-	- Proje klasörünüzün kök dizininde platformio.ini adında bir dosya bulunur.
-
-[env:esp32doit-devkit-v1]
-platform = espressif32
-board = esp32doit-devkit-v1  # DOIT modeline özel board tanımı
-framework = arduino
-board_build.partitions = partitions.csv
-
-monitor_speed = 115200
-monitor_filters = direct
-
-lib_deps =
-    sandeepmistry/LoRa @ ^0.8.0
-    #bblanchon/ArduinoJson
-    #ESP32Async/ESPAsyncWebServer @ 3.6.0
-
-# Optimizasyon ve bellek ayarları
-build_flags =
-    -Os                   # Boyut optimizasyonu
-    -ffunction-sections   # Kullanılmayan fonksiyonları sil
-    -fdata-sections       # Kullanılmayan verileri sil
-    -Wl,--gc-sections     # Bağlayıcıya "çöp toplama" yapmasını söyle
-
-# Partition Şeması (Flash'ı genişletmek için)
-# board_build.partitions = no_ota.csv  # OTA yok, tüm flash program için kullanılabilir
-
-
-6. 
-Kodu Derleme ve Yükleme:
-
-
-	- ESP32 kartınızı USB ile bilgisayarınıza bağlayın.
-
-	- VS Code'un alt kısmındaki mavi durum çubuğunda PlatformIO düğmelerini bulacaksınız.
-
-	- "Build" (Tik işareti) butonuna tıklayarak kodu derleyin.
-
-	- Derleme başarılı olursa, "Upload" (Sağ ok işareti) butonuna tıklayarak kodu ESP32 kartınıza yükleyin.
-
-
-7. 
 Seri Monitör:
-
 
 	- Kodu yükledikten sonra, VS Code'un altındaki durum çubuğunda bulunan "Monitor" (Prize benzer simge) butonuna tıklayarak Seri Monitörü açın.
 
