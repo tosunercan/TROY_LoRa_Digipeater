@@ -66,33 +66,33 @@ Cihazın yönetimi ve yapılandırılması, yerleşik bir web sunucusu üzerinde
 - APRS-IS Yapılandırması
 Web arayüzünden:
 
-Sunucu: rotate.aprs2.net
-Port: 14580
-Kullanıcı adı: Çağrı işaretiniz
-Şifre: APRS-IS şifreniz
-Filtre: r/lat/lon/radius (örn: r/40.1479/26.4324/50)
+- Sunucu: rotate.aprs2.net
+- Port: 14580
+- Kullanıcı adı: Çağrı işaretiniz
+- Şifre: APRS-IS şifreniz
+- Filtre: r/lat/lon/radius (örn: r/40.1479/26.4324/50)
 
 Kullanım
 Web Arayüzü
 
-Ana sayfa: İstatistikler ve son paketler
-Yapılandırma: Tüm ayarları değiştirme
-Durum Gönder: Manuel status beacon
-Yorum Gönder: Manuel comment beacon
-LoRa Restart: LoRa modülünü yeniden başlat
-Sistem Reboot: Cihazı yeniden başlat
+- Ana sayfa: İstatistikler ve son paketler
+- Yapılandırma: Tüm ayarları değiştirme
+- Durum Gönder: Manuel status beacon
+- Yorum Gönder: Manuel comment beacon
+- LoRa Restart: LoRa modülünü yeniden başlat
+- Sistem Reboot: Cihazı yeniden başlat
 
 Periyodik İletimler
 
-Status Beacon: Her saatin 30. ve 59. dakikasında
-Comment Beacon: 5, 25 ve 45. dakikalarda
+- Status Beacon: Her saatin 30. ve 59. dakikasında
+- Comment Beacon: 5, 25 ve 45. dakikalarda
 
 LED Göstergeleri
 
-Yavaş yanıp sönme: AP modu aktif
-Tek yanıp sönme: Paket digipeat edildi
-İki yanıp sönme: Status/Comment gönderildi
-Üç yanıp sönme: Sistem başlatıldı
+- Yavaş yanıp sönme: AP modu aktif
+- Tek yanıp sönme: Paket digipeat edildi
+- İki yanıp sönme: Status/Comment gönderildi
+- Üç yanıp sönme: Sistem başlatıldı
 
 Gerekli Donanım
 
