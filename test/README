@@ -1,0 +1,246 @@
+TROY LoRa APRS DigiRepeater (ESP32)
+
+TR0Y-5 LoRa Digirepeater by TA3OER
+
+
+Bu proje, bir ESP32 mikrodenetleyici ve bir LoRa modülü (SX127x serisi) kullanarak bir APRS (Automatic Packet Reporting System) digipeater ve APRS-IS (Internet Service) gateway'i oluşturur. Cihaz, LoRa üzerinden alınan APRS paketlerini Internet'teki APRS-IS ağına iletebilir ve/veya APRS-IS'ten gelen bazı paketleri LoRa ağına aktarabilir. Aynı zamanda, paketin yolu üzerindeki "WIDE1-1" gibi ifadeleri kendi çağrı işaretine (TR0Y-5*) çevirerek APRS paketlerini digipeat etme yeteneğine sahiptir.
+
+Cihazın yönetimi ve yapılandırılması, yerleşik bir web sunucusu üzerinden kolayca yapılabilir.
+
+Özellikler
+
+- LoRa APRS DigiRepeater:
+	- 433.775MHz frekansında çalışacak şekilde yapılandırılmıştır (yapılandırılabilir).
+
+	- APRS paketlerini alır ve "WIDE1-1" path'ine sahipse digipeat eder.
+
+	- Tekrarlayan (digipeat edilmiş) paketleri, CALLSIGN* formatında kendi çağrı işaretiyle işaretler.
+
+	- Kendi gönderdiği veya daha önce digipeat ettiği paketleri tekrarlamaz (loop önleme).
+
+	- Çarpışmaları azaltmak için rastgele gecikme ile TX yapar.
+
+
+- APRS-IS Gateway:
+	- LoRa üzerinden alınan APRS paketlerini APRS-IS sunucularına iletir.
+
+	- (Opsiyonel) APRS-IS'ten gelen paketleri LoRa ağına yayınlayabilir (şu an yorum satırı olarak kapatılmıştır, kanal yoğunluğu nedeniyle dikkatli kullanılmalıdır).
+
+	- Kullanıcı adı, şifre, sunucu ve filtre ile yapılandırılabilir.
+
+	- APRS-IS bağlantı durumunu izler ve otomatik olarak yeniden bağlanmayı dener.
+
+
+- Web Yönetim Arayüzü:
+	- Ana Sayfa (/): Cihaz durumu, çalışma süresi, LoRa RX/TX/DIGI istatistikleri, APRS-IS bağlantı bilgileri ve son alınan/digipeat edilen paketlerin geçmişi görüntülenir.
+
+	- Yapılandırma Sayfası (/config):
+		- WiFi (STA modu) SSID ve şifre.
+
+		- APRS-IS sunucu adresi, portu, kullanıcı adı, şifresi ve filtre ayarları.
+
+		- LoRa frekansı, Spreading Factor (SF), Bant Genişliği (BW), Coding Rate (CR), TX Gücü (Tx Power).
+
+		- Digipeater'ın Çağrı İşareti (Call Sign), Durum Mesajı (Status Message) ve Yorum Mesajı (Comment Message).
+
+
+	- Yönetim Butonları: Durum (Status) ve Yorum (Comment) paketi gönderme, LoRa modülünü yeniden başlatma ve cihazı yeniden başlatma düğmeleri.
+
+	- Otomatik Yenileme: Ana sayfa, istatistikleri güncel tutmak için her 30 saniyede bir otomatik olarak yenilenir.
+
+
+- Kalıcı Ayarlar (Preferences): Tüm yapılandırma ayarları, ESP32'nin NVS belleğine kaydedilir ve cihaz yeniden başlatıldığında otomatik olarak yüklenir.
+
+- WiFi Erişim Noktası (AP) Modu:
+	- Cihaz açıldığında otomatik olarak AP modunda başlar (SSID: TROY-DigiRepeater, Şifre: 12345678).
+
+	- BOOT butonuna 3 saniye basılı tutularak manuel olarak da AP modu başlatılabilir.
+
+	- AP modu, otomatik olarak 5 dakika sonra kapanır (yapılandırılabilir).
+
+
+- Görsel Geri Bildirim: Yerleşik LED (GPIO2), cihazın durumu (AP modu, paket gönderme) hakkında görsel geri bildirim sağlar.
+
+- Periyodik Mesajlar: Belirli dakikalarda otomatik olarak APRS Durum ve Yorum paketleri gönderir.
+
+Gerekli Donanım
+
+- ESP32 Geliştirme Kartı: (Örn. ESP32 DevKitC, NodeMCU-32S, Wemos D1 R32 vb.)
+
+- LoRa Modülü: SX1276, SX178 (433MHz için Ra-02) veya benzeri.
+
+- Anten (433MHz LoRa için).
+
+- USB-C veya Micro-USB kablosu (ESP32 kartınıza bağlı olarak).
+
+Bağlantı Şeması (Örnek - Pinler Kodda Tanımlıdır)
+
+
+LoRa modülü ile ESP32 arasındaki pin bağlantıları aşağıdaki gibi olmalıdır (kodunuzdaki tanımlamalara göre):
+
+
+LoRa Modülü Pini	ESP32 GPIO Pini
+MISO	GPIO19
+MOSI	GPIO27
+SCK	GPIO5
+NSS (CS)	GPIO18
+RESET (RST)	GPIO14
+DIO0	GPIO26
+GND	GND
+VCC	3.3V
+LED Pini: Dahili LED (veya harici bir LED) için GPIO2 kullanılmaktadır.
+
+BOOT Butonu Pini: AP modunu manuel tetiklemek için GPIO0 kullanılmaktadır (ESP32 kartlarındaki BOOT/FLASH butonu).
+
+Kurulum (VS Code & PlatformIO ile)
+
+1. 
+
+
+VS Code Kurulumu:
+
+
+	- Visual Studio Code'u bilgisayarınıza indirin ve kurun: VS Code İndir
+
+
+2. 
+PlatformIO IDE Uzantısını Kurun:
+
+
+	- VS Code'u açın.
+
+	- Sol kenar çubuğundaki Uzantılar (Extensions) simgesine tıklayın (veya Ctrl+Shift+X / Cmd+Shift+X).
+
+	- Arama çubuğuna PlatformIO IDE yazın ve çıkan uzantıyı kurun.
+
+	- Kurulum tamamlandıktan sonra PlatformIO, gerekli araç zincirlerini (toolchains) ve bağımlılıkları yükleyebilir, bu biraz zaman alabilir.
+
+
+3. 
+Yeni PlatformIO Projesi Oluşturma:
+
+
+	- VS Code'un sol alt köşesindeki PlatformIO simgesine tıklayın (Ant Başı simgesi).
+
+	- "Home" ekranından "New Project" butonuna tıklayın.
+
+	- "Name" alanına projeniz için bir isim girin (örn. TROY_LoRa_Digipeater).
+
+	- "Board" olarak kullandığınız ESP32 kartını arayın ve seçin (örn. ESP32 Dev Module).
+
+	- "Framework" olarak Arduino'yu seçin.
+
+	- "Location" kısmında projenizin kaydedileceği dizini belirleyin (PlatformIO'nun varsayılan konumunu kullanabilirsiniz).
+
+	- "Finish" butonuna tıklayın. PlatformIO projenizin yapısını oluşturacak ve gerekli dosyaları indirecektir.
+
+
+4. 
+Kodu Projeye Kopyalama:
+
+
+	- Oluşturulan PlatformIO projenizde src adında bir klasör bulacaksınız. Bu klasörün içinde varsayılan olarak main.cpp adında bir dosya olacaktır.
+
+	- Bu projenin (bu README'nin bulunduğu kod) içeriğini (yalnızca .ino veya .cpp dosyasını) src klasörünün içindeki main.cpp dosyasının yerine yapıştırın veya main.cpp dosyasını silip kendi kod dosyanızı (örneğin main.cpp olarak kaydederek) src klasörüne kopyalayın.
+
+
+5. 
+platformio.ini Dosyasını Güncelleme:
+
+
+	- Proje klasörünüzün kök dizininde platformio.ini adında bir dosya bulunur.
+
+[env:esp32doit-devkit-v1]
+platform = espressif32
+board = esp32doit-devkit-v1  # DOIT modeline özel board tanımı
+framework = arduino
+board_build.partitions = partitions.csv
+
+monitor_speed = 115200
+monitor_filters = direct
+
+lib_deps =
+    sandeepmistry/LoRa @ ^0.8.0
+    #bblanchon/ArduinoJson
+    #ESP32Async/ESPAsyncWebServer @ 3.6.0
+
+# Optimizasyon ve bellek ayarları
+build_flags =
+    -Os                   # Boyut optimizasyonu
+    -ffunction-sections   # Kullanılmayan fonksiyonları sil
+    -fdata-sections       # Kullanılmayan verileri sil
+    -Wl,--gc-sections     # Bağlayıcıya "çöp toplama" yapmasını söyle
+
+# Partition Şeması (Flash'ı genişletmek için)
+# board_build.partitions = no_ota.csv  # OTA yok, tüm flash program için kullanılabilir
+
+
+6. 
+Kodu Derleme ve Yükleme:
+
+
+	- ESP32 kartınızı USB ile bilgisayarınıza bağlayın.
+
+	- VS Code'un alt kısmındaki mavi durum çubuğunda PlatformIO düğmelerini bulacaksınız.
+
+	- "Build" (Tik işareti) butonuna tıklayarak kodu derleyin.
+
+	- Derleme başarılı olursa, "Upload" (Sağ ok işareti) butonuna tıklayarak kodu ESP32 kartınıza yükleyin.
+
+
+7. 
+Seri Monitör:
+
+
+	- Kodu yükledikten sonra, VS Code'un altındaki durum çubuğunda bulunan "Monitor" (Prize benzer simge) butonuna tıklayarak Seri Monitörü açın.
+
+	- monitor_speed = 115200 ayarı platformio.ini dosyasında doğru olduğu için, monitör de otomatik olarak 115200 baud hızında açılacaktır.
+
+
+Kullanım ve Yapılandırma
+
+
+Cihazı ilk kez çalıştırdığınızda veya fabrika ayarlarına döndürüldüğünde:
+
+
+1. AP Moduna Bağlanma: Cihaz otomatik olarak bir WiFi Erişim Noktası (AP) oluşturacaktır.
+	- WiFi Ağ Adı (SSID): TROY-DigiRepeater
+
+	- Şifre: 12345678
+
+	- Bilgisayarınız veya telefonunuzla bu ağa bağlanın.
+
+	- Alternatif olarak, cihazın BOOT (GPIO0) butonuna 3 saniye basılı tutarak AP modunu manuel olarak başlatabilirsiniz.
+
+
+2. Web Arayüzüne Erişme:
+	- Bir web tarayıcısı açın ve adres çubuğuna http://192.168.4.1 yazın.
+
+	- Cihazın ana sayfasını (/) göreceksiniz.
+
+
+3. Yapılandırma:
+	- Ana sayfadaki "Yapılandırma" butonuna tıklayın veya http://192.168.4.1/config adresine gidin.
+
+	- Bu sayfada WiFi STA (İnternet) bağlantı bilgilerinizi, APRS-IS ayarlarınızı, LoRa parametrelerinizi ve digipeater'ın çağrı işaretini, durum ve yorum mesajlarını girebilirsiniz.
+
+	- Tüm ayarları girdikten sonra "Kaydet ve Yeniden Başlat" butonuna tıklayın. Ayarlar kaydedilecek ve cihaz yeni ayarlarla yeniden başlayacaktır.
+
+
+4. İnternet (STA) Modunda Çalışma:
+	- Eğer bir WiFi ağına bağlanmak için STA ayarlarını yaptıysanız, cihaz yeniden başladıktan sonra belirtilen WiFi ağına bağlanmaya çalışacaktır.
+
+	- Bağlantı başarılı olursa, APRS-IS gateway işlevi aktif hale gelecektir.
+
+	- Cihaza artık yerel ağınızdaki IP adresinden erişmeniz gerekecektir (bu IP adresi seri monitörde veya ana sayfadaki WiFi STA bölümünde görünecektir).
+
+
+Sorun Giderme
+
+- Seri Çıktıda Bozuk Karakterler: PlatformIO Seri Monitörünüzün platformio.ini dosyasında monitor_speed = 115200 ayarının doğru olduğundan emin olun.
+
+- LoRa Başlatılamadı Hatası: LoRa modülü bağlantılarını kontrol edin (özellikle RST ve DIO0 pinleri). SPI.begin() içindeki pin tanımlamalarının ve LoRa.setPins() içindeki pin tanımlamalarının doğru olduğundan emin olun.
+
+- APRS-IS Bağlantı Sorunları: WiFi STA bağlantınızın çalıştığından emin olun (APRS-IS Gateway için İnternet gereklidir). APRS-IS sunucu adresini, portunu ve login bilgilerinizi (callSign ve APRS-IS password) doğru girdiğinizden emin olun. Firewall ayarlarınızı kontrol edin.
+
+- Web Arayüzüne Erişilemiyor (AP modunda): AP modunun aktif olduğundan ve 5 dakikalık sürenin dolmadığından emin olun. Cihazın BOOT butonuna basılı tutarak AP modunu yeniden başlatmayı deneyin.
