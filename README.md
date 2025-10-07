@@ -1,4 +1,4 @@
-TROY LoRa APRS DigiRepeater (ESP32)
+TROY LoRa APRS DigiRepeater/I-Gate (ESP32)
 
 TR0Y-5 LoRa Digirepeater by TA3OER
 
